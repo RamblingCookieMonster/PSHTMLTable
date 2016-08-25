@@ -1,0 +1,23 @@
+PSTOPIC
+    about_PSHTMLTable
+
+SHORT DESCRIPTION
+    This is a set of functions used to generate HTML tables, and highlight cells within them on demand.
+
+DETAILED DESCRIPTION
+    This is a set of functions used to generate HTML tables, and highlight cells within them on demand.
+
+    You can use and combine several functions to create HTML pages:
+    
+    * New-HTMLHead - Starts building HTML including internal style sheet (leaves body, html tags open)
+    * New-HTMLTable - Create an HTML table from one or more objects
+    * Add-HTMLTableColor - Colorize cells or rows in an HTML table, or add other inline CSS
+    * CloseHTML - Close out the body and html tags
+    * ConvertTo-PropertyValue - Convert an object with various properties into an array of property,value pairs
+    
+    Note that these should work together.  New-HTMLTable just creates a table, not the full HTML around it, thus allowing you to build multiple tables per page.
+
+    See Get-Help New-HTMLHead -Full to see a variety of examples, including the use of all functions together.
+
+LINK
+    https://github.com/RamblingCookieMonster/PSHTMLTable

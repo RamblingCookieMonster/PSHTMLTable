@@ -7,11 +7,11 @@ One of PowerShell’s major strong points is its ability to interface with a varie
 
 A quick example showing a standard SCOM alert, and a SCOM alert generated using PSHTMLTable functions.  The latter is a bit more helpful!
 
-** Plain SCOM Alert**:
+**Plain SCOM Alert**:
 
 [![plain alert](/Media/scom_plain.png)](/Media/scom_plain.png)
 
-** PSHTMLTable SCOM Alert**:
+**PSHTMLTable SCOM Alert**:
 
 [![scom spicy](/Media/scom_spicy.png)](/Media/scom_spicy.png)
 

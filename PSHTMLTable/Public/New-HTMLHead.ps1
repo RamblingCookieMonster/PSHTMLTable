@@ -68,13 +68,13 @@
         General Command
 
     #>
-    [cmdletbinding(DefaultParameterSetName="String")]    
+    [cmdletbinding(DefaultParameterSetName = "String")]    
     param(
         
-        [Parameter(ParameterSetName='File')]
-        [validatescript({test-path $_ -pathtype leaf})]$cssPath = $null,
+        [Parameter(ParameterSetName = 'File')]
+        [validatescript( {test-path $_ -pathtype leaf})]$cssPath = $null,
         
-        [Parameter(ParameterSetName='String')]
+        [Parameter(ParameterSetName = 'String')]
         [string]$style = "<style>
                     body {
                         color:#333333;
@@ -105,20 +105,35 @@
                     .odd { background-color:#ffffff; }
                     .even { background-color:#dddddd; }
                 </style>",
-        
-        [string]$title = $null
+
+        [string]$title = $null,
+
+        [hashtable]$meta = $null
     )
 
     #add css from file if specified
-    if($cssPath){$style = "<style>$(get-content $cssPath | out-string)</style>"}
+    if ($cssPath) {$style = "<style>$(get-content $cssPath | out-string)</style>"}
 
     #Return HTML
     @"
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml">
         <head>
+            $(if($meta){foreach($i in $meta.GetEnumerator()){
+                if($i.Name -eq 'refresh' -or $i.Name -eq 'default-style' -or $i.Name -eq 'content-type'){
+                "<meta http-equiv=""$($i.Name)"" content=""$($i.Value)"">
+           "
+                continue
+            }
+                if($i.Name -eq 'charset'){
+                "<meta charset=""$($i.Value)"">
+           "
+                continue
+            }
+                "<meta name=""$($i.Name)"" content=""$($i.Value)"">
+           "}})
             $(if($title){"<title>$title</title>"})
-                $style
+            $style
         </head>
         <body>
 

@@ -68,16 +68,15 @@
 
     [cmdletbinding()]
     param(
-        [Parameter( Mandatory=$true,  
-            ValueFromPipeline=$true,
-            ValueFromPipelineByPropertyName=$false)]  
+        [Parameter( Mandatory = $true,  
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $false)]  
         [string]$HTML,
 
         [switch]$Decode
     )
     #Thanks to ‏@ashyoungblood!
-    if($Decode)
-    {
+    if ($Decode) {
         Add-Type -AssemblyName System.Web
         $HTML = [System.Web.HttpUtility]::HtmlDecode($HTML)
     }

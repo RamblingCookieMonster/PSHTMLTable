@@ -78,24 +78,24 @@
     #> 
     [CmdletBinding()] 
     param ( 
-        [Parameter( Position=0,
-                    Mandatory=$true, 
-                    ValueFromPipeline=$true)]
+        [Parameter( Position = 0,
+            Mandatory = $true, 
+            ValueFromPipeline = $true)]
         [PSObject[]]$InputObject,
 
-        [Parameter( Mandatory=$false, 
-                    ValueFromPipeline=$false)]
+        [Parameter( Mandatory = $false, 
+            ValueFromPipeline = $false)]
         [string[]]$Properties,
         
-        [Parameter( Mandatory=$false, 
-                    ValueFromPipeline=$false)]
+        [Parameter( Mandatory = $false, 
+            ValueFromPipeline = $false)]
         [bool]$setAlternating = $true,
 
-        [Parameter( Mandatory=$false, 
-                    ValueFromPipeline=$false)]
+        [Parameter( Mandatory = $false, 
+            ValueFromPipeline = $false)]
         [string]$listTableHead = $null
 
-        )
+    )
     
     BEGIN { 
         #requires -version 2.0
@@ -106,9 +106,9 @@
     PROCESS { 
 
         #Loop through inputObject, add to collection.  Filter properties if specified.
-        foreach($object in $inputObject){
-            if($Properties){ [void]$Objects.add(($object | Select $Properties)) }
-            else{ [void]$Objects.add( $object )}
+        foreach ($object in $inputObject) {
+            if ($Properties) { [void]$Objects.add(($object | Select-Object $Properties)) }
+            else { [void]$Objects.add( $object )}
         }
 
     } 
@@ -119,17 +119,17 @@
         $xml = [System.Xml.Linq.XDocument]::Parse("$($Objects | ConvertTo-Html -Fragment)")
         
         #replace * as table head if specified.  Note, this should only be done for a list...
-        if($listTableHead){
-            $xml = [System.Xml.Linq.XDocument]::parse( $xml.Document.ToString().replace("<th>*</th>","<th>$listTableHead</th>") )
+        if ($listTableHead) {
+            $xml = [System.Xml.Linq.XDocument]::parse( $xml.Document.ToString().replace("<th>*</th>", "<th>$listTableHead</th>") )
         }
 
-        if($setAlternating){
+        if ($setAlternating) {
             #loop through descendents.  If their index is even mark with class even, odd with class odd.
-            foreach($descendent in $($xml.Descendants("tr"))){
-                if(($descendent.NodesBeforeSelf() | Measure-Object).count % 2 -eq 0){
+            foreach ($descendent in $($xml.Descendants("tr"))) {
+                if (($descendent.NodesBeforeSelf() | Measure-Object).count % 2 -eq 0) {
                     $descendent.SetAttributeValue("class", "even") 
                 }
-                else{
+                else {
                     $descendent.SetAttributeValue("class", "odd") 
                 }
             }

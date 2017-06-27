@@ -85,9 +85,9 @@
     #> 
     [cmdletbinding()]
     param(
-        [Parameter(Mandatory=$true,
-            ValueFromPipeline=$true,
-            ValueFromRemainingArguments=$false)]
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromRemainingArguments = $false)]
         [PSObject]$InputObject,
         
         [validateset("AliasProperty", "CodeProperty", "Property", "NoteProperty", "ScriptProperty",
@@ -100,30 +100,30 @@
         [string]$rightHeader = "Value"
     )
 
-    begin{
+    begin {
         #init array to dump all objects into
         $allObjects = New-Object System.Collections.ArrayList
 
     }
-    process{
+    process {
         #if we're taking from pipeline and get more than one object, this will build up an array
         [void]$allObjects.add($inputObject)
     }
 
-    end{
+    end {
         #use only the first object provided
         $allObjects = $allObjects[0]
 
         #Get properties.  Filter by memberType.
-        $properties = $allObjects.psobject.properties | ?{$memberType -contains $_.memberType} | select -ExpandProperty Name
+        $properties = $allObjects.psobject.properties | Where-Object {$memberType -contains $_.memberType} | Select-Object -ExpandProperty Name
 
         #loop through properties and display property value pairs
-        foreach($property in $properties){
+        foreach ($property in $properties) {
 
             #Create object with property and value
-            $temp = "" | select $leftHeader, $rightHeader
-            $temp.$leftHeader = $property.replace('"',"")
-            $temp.$rightHeader = try { $allObjects | select -ExpandProperty $temp.$leftHeader -erroraction SilentlyContinue } catch { $null }
+            $temp = "" | Select-Object $leftHeader, $rightHeader
+            $temp.$leftHeader = $property.replace('"', "")
+            $temp.$rightHeader = try { $allObjects | Select-Object -ExpandProperty $temp.$leftHeader -erroraction SilentlyContinue } catch { $null }
             $temp
         }
     }

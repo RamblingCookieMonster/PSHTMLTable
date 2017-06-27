@@ -120,74 +120,73 @@
     #> 
     [CmdletBinding()] 
     param ( 
-        [Parameter( Mandatory=$true,  
-                ValueFromPipeline=$true,
-                ValueFromPipelineByPropertyName=$false)]  
+        [Parameter( Mandatory = $true,  
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $false)]  
         [string]$HTML,
         
-        [Parameter( Mandatory=$false, 
-                    ValueFromPipeline=$false)]
-        [String]$Column="Name",
+        [Parameter( Mandatory = $false, 
+            ValueFromPipeline = $false)]
+        [String]$Column = "Name",
         
-        [Parameter( Mandatory=$false,
-                    ValueFromPipeline=$false)]
-        $Argument=0,
+        [Parameter( Mandatory = $false,
+            ValueFromPipeline = $false)]
+        $Argument = 0,
         
-        [Parameter( ValueFromPipeline=$false)]
+        [Parameter( ValueFromPipeline = $false)]
         [ScriptBlock]$ScriptBlock = {[string]$args[0] -eq [string]$args[1]},
         
-        [Parameter( ValueFromPipeline=$false)]
+        [Parameter( ValueFromPipeline = $false)]
         [String]$Attr = "style",
         
-        [Parameter( Mandatory=$true, 
-                    ValueFromPipeline=$false)] 
+        [Parameter( Mandatory = $true, 
+            ValueFromPipeline = $false)] 
         [String]$AttrValue,
         
-        [Parameter( Mandatory=$false, 
-                    ValueFromPipeline=$false)] 
-        [switch]$WholeRow=$false
+        [Parameter( Mandatory = $false, 
+            ValueFromPipeline = $false)] 
+        [switch]$WholeRow = $false
 
-        )
+    )
     
-        #requires -version 2.0
-        add-type -AssemblyName System.xml.linq | out-null
+    #requires -version 2.0
+    add-type -AssemblyName System.xml.linq | out-null
 
-        # Convert our data to x(ht)ml  
-        $xml = [System.Xml.Linq.XDocument]::Parse($HTML)   
+    # Convert our data to x(ht)ml  
+    $xml = [System.Xml.Linq.XDocument]::Parse($HTML)   
         
-        #Get column index.  try th with no namespace first, then default namespace provided by convertto-html
-        try{ 
-            $columnIndex = (($xml.Descendants("th") | Where-Object { $_.Value -eq $Column }).NodesBeforeSelf() | Measure-Object).Count 
+    #Get column index.  try th with no namespace first, then default namespace provided by convertto-html
+    try { 
+        $columnIndex = (($xml.Descendants("th") | Where-Object { $_.Value -eq $Column }).NodesBeforeSelf() | Measure-Object).Count 
+    }
+    catch { 
+        Try {
+            $columnIndex = (($xml.Descendants("{http://www.w3.org/1999/xhtml}th") | Where-Object { $_.Value -eq $Column }).NodesBeforeSelf() | Measure-Object).Count
         }
-        catch { 
-            Try {
-                $columnIndex = (($xml.Descendants("{http://www.w3.org/1999/xhtml}th") | Where-Object { $_.Value -eq $Column }).NodesBeforeSelf() | Measure-Object).Count
-            }
-            Catch {
-                Throw "Error:  Namespace incorrect."
-            }
+        Catch {
+            Throw "Error:  Namespace incorrect."
         }
+    }
 
-        #if we got the column index...
-        if($columnIndex -as [double] -ge 0){
+    #if we got the column index...
+    if ($columnIndex -as [double] -ge 0) {
             
-            #take action on td descendents matching that index
-            switch($xml.Descendants("td") | Where { ($_.NodesBeforeSelf() | Measure).Count -eq $columnIndex })
-            {
-                #run the script block.  If it is true, set attributes
-                {$(Invoke-Command $ScriptBlock -ArgumentList @($_.Value, $Argument))} { 
+        #take action on td descendents matching that index
+        switch ($xml.Descendants("td") | Where-Object { ($_.NodesBeforeSelf() | Measure-Object).Count -eq $columnIndex }) {
+            #run the script block.  If it is true, set attributes
+            {$(Invoke-Command $ScriptBlock -ArgumentList @($_.Value, $Argument))} { 
                     
-                    #mark the whole row or just a cell depending on param
-                    if ($WholeRow)  { 
-                        $_.Parent.SetAttributeValue($Attr, $AttrValue) 
-                    } 
-                    else { 
-                        $_.SetAttributeValue($Attr, $AttrValue) 
-                    }
+                #mark the whole row or just a cell depending on param
+                if ($WholeRow) { 
+                    $_.Parent.SetAttributeValue($Attr, $AttrValue) 
+                } 
+                else { 
+                    $_.SetAttributeValue($Attr, $AttrValue) 
                 }
             }
         }
+    }
         
-        #return the XML
-        $xml.Document.ToString() 
+    #return the XML
+    $xml.Document.ToString() 
 }
